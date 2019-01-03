@@ -26,5 +26,5 @@ I have only tested the build on macOS but it might work on other Posix operating
 * `make sdk` will download and install the required Nordic SDK. This should only need to be done once.
 * `make audio` will generate the .wav files to be placed in the root folder of the SD card.
 * `make flash_softdevice` will install the required Nordic SoftDevice on the nRF51422 microcontroller using the J-Link debugger. This will typically only need to be done once for each microcontroller.
-* `make all` will build the keyboard firmware.
-* `make flash` will build the keyboard firmware and deploy it using the J-Link debugger.
+* `make all` will build the hat firmware.
+* `make flash` will build the hat firmware and deploy it using the J-Link debugger.
