@@ -13,7 +13,7 @@ The user can connect to the device with a BLE capable phone using the Nordic UAR
 The sound clips are stored on SD card as .wav files and are played back by pulsing a pin as a 1-bit DAC at 22.05kHz. The mouth is connected to a hobby servo instead of the original open-loop DC motor and the position of this servo is based on the volume in upcoming audio buffers.
 
 ## Credits
-The sound clips and the code flow to randomly select between them originates from the https://github.com/gowenrw/arduino_sorting_hat repository created by @gowenrw.
+The sound clips and the code flow to randomly select between them originates from the https://github.com/gowenrw/arduino_sorting_hat repository created by [@gowenrw](https://github.com/gowenrw).
 
 This sample is heavily influenced by Nordic's BLE UART Service (ble_app_uart) SDK sample.
 
