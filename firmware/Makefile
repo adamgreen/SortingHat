@@ -221,6 +221,7 @@ help:
 	@echo The following rules are available:
 	@echo   sdk - Needs to be run first to install Nordic SDK, required for build.
 	@echo   clean - Deletes all output binaries so that next build is performed from scratch.
+	@echo   audio - Generate the .wav files to be placed in the root folder of the SD card.
 	@echo   all - Builds all supported targets - nrf51422_xxac.
 	@echo   erase - Erases all of the FLASH on the nRF5 device.
 	@echo   flash_softdevice - Flashes the Nordic BLE Soft Device. Will erase device first.
@@ -268,3 +269,19 @@ $(SDK_ROOT): ../$(SDK_ZIP)
 ../$(SDK_ZIP):
 	@echo Downloading $@
 	$(NO_ECHO)curl -L0 $(SDK_URL) >$@
+
+# Generate 22.05kHz mono .wav files from MP3s in arduino_sorting_hat submodule.
+SAMPLING_RATE := 22050
+AUDIO_SOURCE := ../arduino_sorting_hat/audio
+AUDIO_DEST := ../audio
+WAV_FILES := $(patsubst $(AUDIO_SOURCE)/%.mp3,$(AUDIO_DEST)/%.wav,$(wildcard $(AUDIO_SOURCE)/*.mp3))
+
+audio: $(AUDIO_DEST) $(WAV_FILES)
+	@echo Audio files to be copied to SD card root folder can be found in $(AUDIO_DEST)
+
+$(AUDIO_DEST):
+	$(NO_ECHO)mkdir $(AUDIO_DEST)
+
+$(AUDIO_DEST)/%.wav : $(AUDIO_SOURCE)/%.mp3
+	@echo Converting $< to $@
+	$(NO_ECHO)afconvert $< -f WAVE -d UI8@$(SAMPLING_RATE) -c 1 -o $@

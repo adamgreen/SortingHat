@@ -1,0 +1,3 @@
+[submodule "arduino_sorting_hat"]
+	path = arduino_sorting_hat
+	url = git@github.com:gowenrw/arduino_sorting_hat.git
