@@ -1,0 +1,27 @@
+diff -Naur sdk2/components/drivers_nrf/timer/nrf_drv_timer.c sdk/components/drivers_nrf/timer/nrf_drv_timer.c
+--- sdk2/components/drivers_nrf/timer/nrf_drv_timer.c	2017-05-05 14:10:54.000000000 -0700
++++ sdk/components/drivers_nrf/timer/nrf_drv_timer.c	2019-01-02 03:19:00.000000000 -0800
+@@ -297,14 +297,6 @@
+ }
+ #endif
+ 
+-#if NRF_MODULE_ENABLED(TIMER1)
+-void TIMER1_IRQHandler(void)
+-{
+-    irq_handler(NRF_TIMER1, &m_cb[TIMER1_INSTANCE_INDEX],
+-        NRF_TIMER_CC_CHANNEL_COUNT(1));
+-}
+-#endif
+-
+ #if NRF_MODULE_ENABLED(TIMER2)
+ void TIMER2_IRQHandler(void)
+ {
+diff -Naur sdk2/components/toolchain/gcc/Makefile.posix sdk/components/toolchain/gcc/Makefile.posix
+--- sdk2/components/toolchain/gcc/Makefile.posix	2017-05-05 13:10:30.000000000 -0700
++++ sdk/components/toolchain/gcc/Makefile.posix	2019-01-02 03:28:04.000000000 -0800
+@@ -1,3 +1,3 @@
+-GNU_INSTALL_ROOT := /usr/local/gcc-arm-none-eabi-4_9-2015q3
+-GNU_VERSION := 4.9.3
++GNU_INSTALL_ROOT := $(patsubst %/bin/,%,$(dir $(shell which arm-none-eabi-gcc)))
++GNU_VERSION := 7.3.1
+ GNU_PREFIX := arm-none-eabi

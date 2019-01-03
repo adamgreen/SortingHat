@@ -1,0 +1,11 @@
+.DS_Store
+_build/
+.gdbinit
+.gdb_history
+
+*.zip
+/sdk/
+/tools/
+
+*.b#*
+*.s#*
