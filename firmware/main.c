@@ -17,7 +17,7 @@
 
    Pins.h contains the definitions for which pins are connected to which external hardware.
 
-   The user can connect to the device with a BLE capable phone using the Nordic UART serice and send 'g', 'r', 'h', or
+   The user can connect to the device with a BLE capable phone using the Nordic UART service and send 'g', 'r', 'h', or
    's' to select the house and then a series of random clips from the movies will play, ending with an announcement of
    the selected house.
 
@@ -26,7 +26,7 @@
    is based on the volume in upcoming audio buffers.
 
    The sound clips and the code flow to randomly select between them originates from
-   https://github.com/gowenrw/arduino_sorting_hat created by @gowenr, Richard Gowen.
+   https://github.com/gowenrw/arduino_sorting_hat created by @gowenrw, Richard Gowen.
 
    This sample is heavily influenced by Nordic's BLE UART Service (ble_app_uart) SDK sample.
 */
@@ -331,7 +331,7 @@ static void playHouseAnnouncement(uint8_t houseSelection)
     do
     {
         nrf_drv_rng_bytes_available(&availableBytes);
-    } while (availableBytes < 4);
+    } while (availableBytes < sizeof(randNumbers));
     errorCode = nrf_drv_rng_rand(randNumbers, sizeof(randNumbers));
     APP_ERROR_CHECK(errorCode);
 
