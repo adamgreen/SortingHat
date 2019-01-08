@@ -28,3 +28,31 @@ I have only tested the build on macOS but it might work on other Posix operating
 * `make flash_softdevice` will install the required Nordic SoftDevice on the nRF51422 microcontroller using the J-Link debugger. This will typically only need to be done once for each microcontroller.
 * `make all` will build the hat firmware.
 * `make flash` will build the hat firmware and deploy it using the J-Link debugger.
+
+
+# Bill of Materials
+Description | Quantity | Part Number(s)
+------------|----------|---------------
+[LM386MMX-1 Low Voltage Audio Amplifier](https://www.digikey.com/products/en?keywords=LM386MMX-1/NOPBCT-ND) | 1 | IC1
+[MIC5205 Linear Regulator - 3.3V 150mA SOT23-5](https://www.digikey.com/products/en?keywords=576-1259-1-ND) | 1 | U1
+[microSD Socket](https://www.sparkfun.com/products/127) | 1 | JP1
+[Dynastream N5150M5CD - nRF51422 Module](https://www.digikey.com/products/en?keywords=N5150M5CD) | 1 | U2
+[0.01uF Capacitor - 0805](https://www.adafruit.com/product/441) | 1 | C5
+[0.1uF Capacitor - 0805](https://www.adafruit.com/product/441) | 4 | C3, C4, C8, C10
+[10uF Capacitor (16V) - Tantalum](https://www.digikey.com/products/en?keywords=478-8235-1-ND) | 4 | C1, C2, C6, C7
+[220uF Capacitor (10V) - Tantalum](https://www.digikey.com/products/en?keywords=478-6612-1-ND) | 1 | C9
+[10kΩ Resistor - 0805](https://www.adafruit.com/product/441) | 1 | R1
+[10Ω Resistor - 0805](https://www.adafruit.com/product/441) | 1 | R6
+[1kΩ Resistor - 0805](https://www.adafruit.com/product/441) | 3 | R2, R3, R7
+[4.7kΩ Resistor - 0805](https://www.adafruit.com/product/441) | 1 | R4
+[10kΩ 11-TurnTrimmer Potentiometer](https://www.digikey.com/products/en?keywords=3223W-1-103ECT-ND) | 1 | R5
+[Sliding Switch](https://www.digikey.com/products/en?keywords=EG2481-ND) | 1 | S1
+
+
+# Schematic
+<a href="https://github.com/adamgreen/SortingHat/blob/master/hardware/Schematic.pdf"><img src="https://raw.githubusercontent.com/adamgreen/SortingHat/master/hardware/Schematic.png" alt="Schematic" /></a>
+
+
+# OSHPark Renderings of PCB
+<img src="https://raw.githubusercontent.com/adamgreen/SortingHat/master/images/20190107-PCB_Top.png" alt="OSHPark rendering of PCB Top" width="640" height="842" />
+<img src="https://raw.githubusercontent.com/adamgreen/SortingHat/master/images/20190107-PCB_Bottom.png" alt="OSHPark rendering of PCB Bottom" width="640" height="842" />
