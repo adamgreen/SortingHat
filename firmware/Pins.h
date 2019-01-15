@@ -15,18 +15,29 @@
 #define PINS_H_
 
 // Pin to use as output for 1-bit DAC (PWM) sound.
-#define SOUND_PIN           1
+#define SOUND_PIN           15
 
 // Pin to use as output for the mouth servo.
-#define MOUTH_SERVO_PIN     2
+#define MOUTH_SERVO_PIN     6
 
 // Pin to use as input for the random selection switch.
-#define RANDOM_SWITCH_PIN   3
+#define RANDOM_SWITCH_PIN   8
 
 // Pins used for interfacing to a SD Card via SPI.
-#define SDC_CS_PIN          24
-#define SDC_MOSI_PIN        25
-#define SDC_MISO_PIN        28
-#define SDC_SCK_PIN         29
+#define SDC_CS_PIN          2
+#define SDC_MOSI_PIN        23
+#define SDC_MISO_PIN        0
+#define SDC_SCK_PIN         30
+
+// Pins used for interfacing to UART with no flow control.
+#define UART_RX_PIN         3
+#define UART_TX_PIN         5
+
+
+// Low frequency clock source to be used by the SoftDevice
+#define NRF_CLOCK_LFCLKSRC      {.source        = NRF_CLOCK_LF_SRC_XTAL,            \
+                                 .rc_ctiv       = 0,                                \
+                                 .rc_temp_ctiv  = 0,                                \
+                                 .xtal_accuracy = NRF_CLOCK_LF_XTAL_ACCURACY_50_PPM}
 
 #endif // PINS_H_

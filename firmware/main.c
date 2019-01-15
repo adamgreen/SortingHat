@@ -43,8 +43,6 @@
 #include <ble_conn_params.h>
 #include <ble_hci.h>
 #include <ble_nus.h>
-#include <bsp.h>
-#include <bsp_btn_ble.h>
 #include <nordic_common.h>
 #include <nrf.h>
 #include <nrf_drv_gpiote.h>
@@ -149,9 +147,7 @@ static void  fillFinalSoundBuffers();
 static int32_t calculateMaxVolume(uint8_t* pData, size_t length);
 static void enterLowPowerModeUntilNextScheduledEvent();
 static void waitForBleHouseChoice();
-static void initButtonsAndLeds();
-static void enterDeepSleep(void);
-static void bspEventHandler(bsp_event_t event);
+static void initRandomSwitch();
 static void randomSelectionSwitchPressedHandler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action);
 static void initBleStack(void);
 static void bleEventHandler(ble_evt_t* pBleEvent);
@@ -161,6 +157,7 @@ static void initBleUartService(void);
 static void nordicUartServiceHandler(ble_nus_t* pNordicUartService, uint8_t* pData, uint16_t length);
 static void initBleAdvertising(void);
 static void bleAdvertisingEventHandler(ble_adv_evt_t bleAdvertisingEvent);
+static void enterDeepSleep(void);
 static void initConnectionParameters(void);
 static void connectionParameterEventHandler(ble_conn_params_evt_t* pEvent);
 static void connectionParameterErrorHandler(uint32_t errorCode);
@@ -204,10 +201,10 @@ static void initUart(void)
     uint32_t                     errorCode;
     const app_uart_comm_params_t commParams =
     {
-        RX_PIN_NUMBER,
-        TX_PIN_NUMBER,
-        RTS_PIN_NUMBER,
-        CTS_PIN_NUMBER,
+        UART_RX_PIN,
+        UART_TX_PIN,
+        0xFF, // RTS not used
+        0xFF, // CTS not used
         APP_UART_FLOW_CONTROL_DISABLED,
         false,
         UART_BAUDRATE_BAUDRATE_Baud115200
@@ -510,7 +507,7 @@ static void waitForBleHouseChoice()
     // Initialize.
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, false);
 
-    initButtonsAndLeds();
+    initRandomSwitch();
     initBleStack();
     initGapParams();
     initBleUartService();
@@ -526,18 +523,8 @@ static void waitForBleHouseChoice()
     }
 }
 
-static void initButtonsAndLeds()
+static void initRandomSwitch()
 {
-
-    uint32_t errorCode = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS,
-                                  APP_TIMER_TICKS(100, APP_TIMER_PRESCALER),
-                                  bspEventHandler);
-    APP_ERROR_CHECK(errorCode);
-
-    bsp_event_t startupEvent;
-    errorCode = bsp_btn_ble_init(NULL, &startupEvent);
-    APP_ERROR_CHECK(errorCode);
-
     // Configure to interrupt if the switch for random house selection is pressed.
     nrf_drv_gpiote_in_config_t config =
     {
@@ -546,56 +533,11 @@ static void initButtonsAndLeds()
         .pull = NRF_GPIO_PIN_PULLUP,
         .sense = NRF_GPIOTE_POLARITY_HITOLO
     };
+    uint32_t errorCode = nrf_drv_gpiote_init();
+    APP_ERROR_CHECK(errorCode);
     errorCode = nrf_drv_gpiote_in_init(RANDOM_SWITCH_PIN, &config, randomSelectionSwitchPressedHandler);
     APP_ERROR_CHECK(errorCode);
     nrf_drv_gpiote_in_event_enable(RANDOM_SWITCH_PIN, true);
-}
-
-static void bspEventHandler(bsp_event_t event)
-{
-    uint32_t errorCode;
-    switch (event)
-    {
-        case BSP_EVENT_SLEEP:
-            enterDeepSleep();
-            break;
-
-        case BSP_EVENT_DISCONNECT:
-            errorCode = sd_ble_gap_disconnect(g_currBleConnection, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            if (errorCode != NRF_ERROR_INVALID_STATE)
-            {
-                APP_ERROR_CHECK(errorCode);
-            }
-            break;
-
-        case BSP_EVENT_WHITELIST_OFF:
-            if (g_currBleConnection == BLE_CONN_HANDLE_INVALID)
-            {
-                errorCode = ble_advertising_restart_without_whitelist();
-                if (errorCode != NRF_ERROR_INVALID_STATE)
-                {
-                    APP_ERROR_CHECK(errorCode);
-                }
-            }
-            break;
-
-        default:
-            break;
-    }
-}
-
-static void enterDeepSleep(void)
-{
-    uint32_t errorCode = bsp_indication_set(BSP_INDICATE_IDLE);
-    APP_ERROR_CHECK(errorCode);
-
-    // Prepare wakeup buttons.
-    errorCode = bsp_btn_ble_sleep_mode_prepare();
-    APP_ERROR_CHECK(errorCode);
-
-    // Go to system-off mode (this function will not return; wakeup will cause a reset).
-    errorCode = sd_power_system_off();
-    APP_ERROR_CHECK(errorCode);
 }
 
 static void randomSelectionSwitchPressedHandler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
@@ -657,7 +599,6 @@ static void bleEventHandler(ble_evt_t * pBleEvent)
     ble_nus_on_ble_evt(&g_nordicUartService, pBleEvent);
     handleBleEventsForApplication(pBleEvent);
     ble_advertising_on_ble_evt(pBleEvent);
-    bsp_btn_ble_on_ble_evt(pBleEvent);
 }
 
 static void handleBleEventsForApplication(ble_evt_t * pBleEvent)
@@ -667,14 +608,10 @@ static void handleBleEventsForApplication(ble_evt_t * pBleEvent)
     switch (pBleEvent->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            errorCode = bsp_indication_set(BSP_INDICATE_CONNECTED);
-            APP_ERROR_CHECK(errorCode);
             g_currBleConnection = pBleEvent->evt.gap_evt.conn_handle;
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            errorCode = bsp_indication_set(BSP_INDICATE_IDLE);
-            APP_ERROR_CHECK(errorCode);
             g_currBleConnection = BLE_CONN_HANDLE_INVALID;
             break;
 
@@ -834,13 +771,9 @@ static void initBleAdvertising(void)
 
 static void bleAdvertisingEventHandler(ble_adv_evt_t bleAdvertisingEvent)
 {
-    uint32_t errorCode;
-
     switch (bleAdvertisingEvent)
     {
         case BLE_ADV_EVT_FAST:
-            errorCode = bsp_indication_set(BSP_INDICATE_ADVERTISING);
-            APP_ERROR_CHECK(errorCode);
             break;
         case BLE_ADV_EVT_IDLE:
             enterDeepSleep();
@@ -848,6 +781,13 @@ static void bleAdvertisingEventHandler(ble_adv_evt_t bleAdvertisingEvent)
         default:
             break;
     }
+}
+
+static void enterDeepSleep(void)
+{
+    // Go to system-off mode (this function will not return; wakeup will cause a reset).
+    uint32_t errorCode = sd_power_system_off();
+    APP_ERROR_CHECK(errorCode);
 }
 
 static void initConnectionParameters(void)
