@@ -56,3 +56,28 @@ Description | Quantity | Part Number(s)
 # OSHPark Renderings of PCB
 <img src="https://raw.githubusercontent.com/adamgreen/SortingHat/master/images/20190107-PCB_Top.png" alt="OSHPark rendering of PCB Top" width="640" height="842" />
 <img src="https://raw.githubusercontent.com/adamgreen/SortingHat/master/images/20190107-PCB_Bottom.png" alt="OSHPark rendering of PCB Bottom" width="640" height="842" />
+
+
+# Postmortem
+Things that worked well in the current prototype version of this sorting hat as documented here:
+* Getting the house selection via BLE from a custom iOS application.
+* Changing out the reciprocating mouth mechanism to instead use a servo with a push-rod mechanism. 
+* Reading in the .wav files from uSD card.
+* Continuing to support the original button on the hat brim for random house selection.
+
+Things that didn't work as well as I had hoped:
+* The LM386 as seen in the above schematic was very sensitive to noise in the 5V supply caused by the servo so I ended up removing it and just using a NPN BJT as described [here](https://makezine.com/projects/make-35/advanced-arduino-sound-synthesis/).
+* The audio quality was quite low. There was a hum in the audio. Seems like it might have been from noise on the nRF51 sound output pin when it is in the high state.
+* While the LM386 volume level was Ok, once I switched it out for a single NPN transistor, the volume level was quite low.
+* The PCB should be modified to better fit inside the hat:
+  * It is currently too wide at the bottom, to the right of the uSD card reader and I had to file it down. I should have cut the bottom in like the top and put the SD card reader there pointed inwards (to the left). 
+  * The power connector is hard to get to since it is right underneath the speaker.
+  * I forgot to label the pins for the BATT header.
+  * The antenna of the nRF51 module is a bit tight against the side of the hat. Could have narrowed the PCB width down a bit and pulled module to the left a mm or so.
+  * The R5 potentiometer was way too close to back edge and actually got bent up by speaker holder.
+  * The C1 capacitor should be moved down a bit as it currently hits up against the bottom of the speaker holder.
+  
+Things I would change if I ever come back to this project to build a newer prototype version:
+* Update the PCB to fix the issues mentioned above.
+* Switch to using a nRF52 based microcontroller instead. This chip supports DMA based PWM and I2S.
+* Use a I2S based amplified DAC such as the [MAX98357A](https://www.adafruit.com/product/3006) to replace the 1-bit DAC and LM386 in the current project. This would probably allow the BLE connection to be maintained while the house announcement was in progress and greatly improve the sound quality.
